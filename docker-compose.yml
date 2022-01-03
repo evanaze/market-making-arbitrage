@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  acala-py:
+    container_name: ccapi-py
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/src
