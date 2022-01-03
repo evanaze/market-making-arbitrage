@@ -1,0 +1,3 @@
+[submodule "ccapi"]
+	path = ccapi
+	url = git@github.com:crypto-chassis/ccapi.git

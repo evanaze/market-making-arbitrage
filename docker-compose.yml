@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-  acala-py:
+  ccapi-py:
     container_name: ccapi-py
     build:
       context: .
