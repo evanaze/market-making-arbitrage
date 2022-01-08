@@ -1,16 +1,16 @@
 include_guard(DIRECTORY)
 #
-# add_compile_definitions(CCAPI_ENABLE_SERVICE_MARKET_DATA)
+add_compile_definitions(CCAPI_ENABLE_SERVICE_MARKET_DATA)
 #
 # add_compile_definitions(CCAPI_ENABLE_SERVICE_EXECUTION_MANAGEMENT)
 #
 # add_compile_definitions(CCAPI_ENABLE_SERVICE_FIX)
 #
-# add_compile_definitions(CCAPI_ENABLE_EXCHANGE_COINBASE)
+add_compile_definitions(CCAPI_ENABLE_EXCHANGE_COINBASE)
 #
 # add_compile_definitions(CCAPI_ENABLE_EXCHANGE_GEMINI)
 #
-# add_compile_definitions(CCAPI_ENABLE_EXCHANGE_KRAKEN)
+add_compile_definitions(CCAPI_ENABLE_EXCHANGE_KRAKEN)
 #
 # add_compile_definitions(CCAPI_ENABLE_EXCHANGE_KRAKEN_FUTURES)
 #
