@@ -15,6 +15,7 @@ RUN wget https://github.com/Kitware/CMake/releases/download/v3.20.0/cmake-3.20.0
 COPY . /market_making_arbitrage
 WORKDIR /market_making_arbitrage
 
+RUN swig -version
 # Build CCAPI
 RUN cd ccapi \
     && mkdir binding/build \
@@ -22,9 +23,6 @@ RUN cd ccapi \
     && cmake -DCMAKE_PROJECT_INCLUDE=/market_making_arbitrage/user_specified_cmake_include.cmake -DBUILD_VERSION=0.1.0 -DBUILD_PYTHON=ON -DINSTALL_PYTHON=ON .. \
     && cmake --build . \
     && cmake --install .
-
-# Install the Python requirements
-RUN pip install -r requirements.txt
 
 # Run the main script
 CMD [ "python", "src/main.py" ]
