@@ -3,7 +3,7 @@ FROM python:3.8.9
 # Install 
 RUN apt update
 RUN apt-get install -y swig libssl-dev
-RUN apt install -y cmake g++ make 
+RUN apt install -y cmake>=3.17
 
 # Copy over the directory and make it the primary directory
 COPY . /market_making_arbitrage
