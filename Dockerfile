@@ -1,9 +1,15 @@
 FROM python:3.8.9
 
-# Install 
+# Install Ubuntu dependencies
 RUN apt update
-RUN apt-get install -y swig libssl-dev
-RUN apt install -y cmake>=3.17
+RUN apt-get install -y swig libssl-dev 
+# Install CMake
+RUN wget https://github.com/Kitware/CMake/releases/download/v3.20.0/cmake-3.20.0.tar.gz \
+    && tar -zxvf cmake-3.20.0.tar.gz \
+    && cd cmake-3.20.0 \
+    && ./bootstrap \
+    && make \
+    && make install 
 
 # Copy over the directory and make it the primary directory
 COPY . /market_making_arbitrage
@@ -13,7 +19,7 @@ WORKDIR /market_making_arbitrage
 RUN cd ccapi \
     && mkdir binding/build \
     && cd binding/build \
-    && cmake -DCMAKE_PROJECT_INCLUDE=../user_specified_cmake_include.cmake -DBUILD_VERSION=0.1.0 -DBUILD_PYTHON=ON -DINSTALL_PYTHON=ON .. \
+    && cmake -DCMAKE_PROJECT_INCLUDE=/market_making_arbitrage/user_specified_cmake_include.cmake -DBUILD_VERSION=0.1.0 -DBUILD_PYTHON=ON -DINSTALL_PYTHON=ON .. \
     && cmake --build . \
     && cmake --install .
 
