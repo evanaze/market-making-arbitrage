@@ -1,0 +1,25 @@
+version: 1
+formatters:
+  logfmt:
+    format: '[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)-8s %(message)s'
+loggers:
+  flogger:
+    level: DEBUG 
+    handlers: [file]
+  clogger:
+    level: INFO
+    handlers: [console]
+handlers:
+  file:
+    class: logging.FileHandler 
+    level: DEBUG
+    formatter: logfmt
+    filename: abc.log
+    encoding: utf-8
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: logfmt 
+root: 
+  level: DEBUG 
+  handlers: [file, console]
