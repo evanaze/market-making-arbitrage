@@ -20,7 +20,7 @@ def make_logger(logFileName):
     logger = logging.getLogger()
     return logger
 
-logger = make_logger(os.path.join("logs", str(dt.today().date()) + "_ping.log"))
+logger = make_logger(os.path.join("logs", str(dt.today().date()) + "_mm.log"))
 
 if __name__ == "__main__":
-    make_logger(os.path.join("logs", str(dt.today().date()) + "_ping.log"))
+    make_logger(os.path.join("logs", str(dt.today().date()) + "_mm.log"))
