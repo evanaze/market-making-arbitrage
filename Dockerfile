@@ -1,8 +1,9 @@
 FROM python:3.8.9
 
 # Install Ubuntu dependencies
-RUN apt update
-RUN apt-get install -y swig libssl-dev 
+RUN apt update \
+    && apt-get install -y libssl-dev libpcre3 libpcre3-dev
+
 # Install CMake
 RUN wget https://github.com/Kitware/CMake/releases/download/v3.20.0/cmake-3.20.0.tar.gz \
     && tar -zxvf cmake-3.20.0.tar.gz \
@@ -10,6 +11,14 @@ RUN wget https://github.com/Kitware/CMake/releases/download/v3.20.0/cmake-3.20.0
     && ./bootstrap \
     && make \
     && make install 
+
+# Install SWIG
+RUN wget http://prdownloads.sourceforge.net/swig/swig-4.0.2.tar.gz \
+    && tar -zxvf swig-4.0.2.tar.gz \
+    && cd swig-4.0.2 \
+    && ./configure \
+    && make \
+    && make install
 
 # Copy over the directory and make it the primary directory
 COPY . /market_making_arbitrage
