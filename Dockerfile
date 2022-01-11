@@ -33,7 +33,7 @@ RUN cd ccapi \
     && cmake --install .
 
 # Install Python requirements
-RUN pip install requirements.txt
+RUN pip install -r requirements.txt
 
 # Run the main script
 CMD [ "python", "src/marketmakingarbitrage/market_making_arbitrage.py" ]
