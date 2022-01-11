@@ -7,4 +7,5 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
+      - ./src:/market_making_arbitrage/src 
       - ./logs:/market_making_arbitrage/logs 

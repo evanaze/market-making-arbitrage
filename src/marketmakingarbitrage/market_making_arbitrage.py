@@ -11,7 +11,9 @@ class MyEventHandler(EventHandler):
             for message in event.getMessageList():
                 print(f'Best bid and ask at {message.getTimeISO()} are:')
                 for element in message.getElementList():
+                    correlationId = message.getCorrelationIdList()[0]
                     elementNameValueMap = element.getNameValueMap()
+                    print(f" Correlation ID: {correlationId}")
                     for name, value in elementNameValueMap.items():
                         print(f'  {name} = {value}')
         return True  # This line is needed.
