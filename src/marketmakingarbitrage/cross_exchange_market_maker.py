@@ -11,7 +11,7 @@ class CrossExchangeMarketMaker:
 
     def check_arbitrage(self):
         "Check for arbitrage opportunity."
-
+        pass
 
     def order_book_update(self, correlationId, bidPrice, bidSize, askPrice, askSize):
         # Update best bids and sizes
