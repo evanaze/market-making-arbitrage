@@ -1,6 +1,6 @@
 import time
 from ccapi import SessionOptions, SessionConfigs, Session, Subscription
-from my_event_handler import MyEventHandler
+from event_handler import MyEventHandler
 from log import logger
 
 
