@@ -1,6 +1,6 @@
 FROM python:3.8.9
 
-# Install Ubuntu dependencies
+# Update Ubuntu and install dependencies
 RUN apt update \
     && apt-get install -y libssl-dev libpcre3 libpcre3-dev
 
@@ -24,7 +24,6 @@ RUN wget http://prdownloads.sourceforge.net/swig/swig-4.0.2.tar.gz \
 COPY . /market_making_arbitrage
 WORKDIR /market_making_arbitrage
 
-RUN swig -version
 # Build CCAPI
 RUN cd ccapi \
     && mkdir binding/build \
@@ -33,5 +32,8 @@ RUN cd ccapi \
     && cmake --build . \
     && cmake --install .
 
+# Install Python requirements
+RUN pip install requirements.txt
+
 # Run the main script
-CMD [ "python", "src/main.py" ]
+CMD [ "python", "src/marketmakingarbitrage/market_making_arbitrage.py" ]
