@@ -35,8 +35,7 @@ class CrossExchangeMarketMaker:
             else:
                 # If the other node has been updated but we haven't activated the edge yet
                 if self.graph[nodeId].lastUpdated:
-                    # Activate the edge for both nodes
-                    self.graph[nodeId].activate_edge(correlationId)
-                    self.graph[correlationId].activate_edge(nodeId)
+                    # Activate the edge
+                    self.graph.activate_edge(correlationId, nodeId)
                 else:
                     self.logger.info("Edge not active yet.")
