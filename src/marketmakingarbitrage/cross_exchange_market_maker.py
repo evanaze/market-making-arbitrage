@@ -4,8 +4,8 @@ from log import logger
 
 
 class CrossExchangeMarketMaker:
-    def __init__(self):
-        self.graph = Graph()
+    def __init__(self, graph=Graph()):
+        self.graph = graph
 
     def check_arbitrage(self, correlationId_1, correlationId_2) -> tuple:
         "Check for arbitrage opportunity between two exchanges."

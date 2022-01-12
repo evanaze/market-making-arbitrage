@@ -1,4 +1,4 @@
-
+"""The base data type."""
 
 class Node:
     "A node on the graph of exchanges and instruments."

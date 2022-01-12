@@ -3,9 +3,9 @@ from cross_exchange_market_maker import CrossExchangeMarketMaker
 
 
 class MyEventHandler(EventHandler):
-    def __init__(self):
+    def __init__(self, crossExchMM=CrossExchangeMarketMaker()):
         super().__init__()
-        self.crossExchMM = CrossExchangeMarketMaker()
+        self.crossExchMM = crossExchMM
 
     def parse_element(self):
         elementNameValueMap = self.element.getNameValueMap()
