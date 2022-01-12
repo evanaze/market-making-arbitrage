@@ -9,11 +9,16 @@ class CrossExchangeMarketMaker:
         self.bestAsksPrice = Counter()
         self.bestAsksSize = Counter()
 
-    def check_arbitrage(self):
+    def check_arbitrage(self) -> list:
         "Check for arbitrage opportunity."
+        # Check if we have recieved messages from at least two exchanges
+        if len(self.bidAskSpread) == 1:
+            logger.info("Not enough info on other order books to check for arbitrage.")
+            return [] 
         pass
 
-    def order_book_update(self, correlationId, bidPrice, bidSize, askPrice, askSize):
+    def order_book_update(self, correlationId: str, bidPrice: float, bidSize: float, askPrice: float, askSize: float):
+        """Update the order book of a given instrument."""
         # Update best bids and sizes
         self.bestBidsPrice[correlationId] = bidPrice
         self.bestBidsSize[correlationId] = bidSize
@@ -21,10 +26,5 @@ class CrossExchangeMarketMaker:
         self.bestAsksSize[correlationId] = askSize
         # Update bid ask spread
         self.bidAskSpread = self.bestAsksPrice.subtract(self.bestBidsPrice)
-        # Check if we have recieved messages from at least two exchanges
-        if len(self.bidAskSpread) == 1:
-            logger.info("Not enough info on other order books to check for arbitrage.")
-        else:
-            # Check for arbitrage opportunity
-            self.check_arbitrage()
+        # Check for arbitrage opportunity
         self.check_arbitrage()

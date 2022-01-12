@@ -5,19 +5,19 @@ from cross_exchange_market_maker import CrossExchangeMarketMaker
 class MyEventHandler(EventHandler):
     def __init__(self):
         super().__init__()
-        #self.crossExchMM = CrossExchangeMarketMaker()
+        self.crossExchMM = CrossExchangeMarketMaker()
 
     def parse_element(self):
         elementNameValueMap = self.element.getNameValueMap()
         for name, value in elementNameValueMap.items():
             if name == "BID_PRICE":
-                self.bidPrice = value
+                self.bidPrice = float(value)
             elif name == "BID_SIZE":
-                self.bidSize = value 
+                self.bidSize = float(value) 
             elif name == "ASK_PRICE":
-                self.askPrice = value
+                self.askPrice = float(value)
             else:
-                self.askSize = value
+                self.askSize = float(value)
 
     def processEvent(self, event: Event, session: Session) -> bool:
         if event.getType() == Event.Type_SUBSCRIPTION_DATA:
@@ -25,6 +25,8 @@ class MyEventHandler(EventHandler):
                 correlationId = message.getCorrelationIdList()[0]
                 for self.element in message.getElementList():
                     self.parse_element()
-                    #self.crossExchMM.order_book_update(correlationId, self.bidPrice, 
-                    # self.bidSize, self.askPrice, self.askSize)
+                    try:
+                        self.crossExchMM.order_book_update(correlationId, self.bidPrice, self.bidSize, self.askPrice, self.askSize)
+                    except Exception as e:
+                        print(e)
         return True  # This line is needed.
