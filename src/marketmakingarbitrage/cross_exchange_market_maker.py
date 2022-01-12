@@ -27,7 +27,7 @@ class CrossExchangeMarketMaker:
         # Update node
         self.graph.update_node(correlationId, bidPrice, bidSize, askPrice, askSize)
         # Traverse edges checking for arbitrage
-        for nodeId, activated in self.graph[correlationId].adjacency_list.items():
+        for nodeId, activated in self.graph[correlationId].adjacencyList.items():
             # Check if the edge is activated
             if activated:    
                 # Check for arbitrage opportunity

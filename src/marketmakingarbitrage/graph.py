@@ -1,6 +1,6 @@
 """The base data type."""
 from collections import defaultdict
-from datetime import datetime as dt
+import datetime as dt
 
 class Node:
     "A node on the graph of exchanges and instruments."
@@ -14,7 +14,7 @@ class Node:
         self.bestBidSize = bestBidSize
         self.bestAskPrice = bestAskPrice
         self.bestAskSize = bestAskSize
-        self.lastUpdated = dt.now(tz="UTC")
+        self.lastUpdated = dt.datetime.now(tz=dt.timezone.utc)
         return self
 
     def add_edge(self, correlationId):

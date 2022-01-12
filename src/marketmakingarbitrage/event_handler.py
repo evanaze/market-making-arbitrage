@@ -29,10 +29,8 @@ class MyEventHandler(EventHandler):
                 for self.element in message.getElementList():
                     # Parse the element
                     self.parse_element()
-                    # Log the data to the log file
-                    try:
-                        self.logger.debug(f"CID: {correlationId}, BB: {self.bidPrice}, BA: {self.askPrice}")
-                        self.crossExchMM.order_book_update(correlationId, self.bidPrice, self.bidSize, self.askPrice, self.askSize)
-                    except Exception as e:
-                        print(e)
+                # Log the data to the log file
+                self.logger.debug(f"CID: {correlationId}, BB: {self.bidPrice}, BA: {self.askPrice}")
+                # Update the order book for the node
+                self.crossExchMM.order_book_update(correlationId, self.bidPrice, self.bidSize, self.askPrice, self.askSize)
         return True  # This line is needed.
