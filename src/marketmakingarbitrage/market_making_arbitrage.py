@@ -34,7 +34,10 @@ class MarketMakingArbitrage:
         # Make the cross exchange market maker
         self.crossExchangeMarketMaker = CrossExchangeMarketMaker(self.graph)
         # Make the event handler
-        eventHandler = MyEventHandler(self.crossExchangeMarketMaker)
+        try:
+            eventHandler = MyEventHandler(self.logger, self.crossExchangeMarketMaker)
+        except Exception as e:
+            print(e)
         # Make the session
         session = Session(self.option, self.config, eventHandler)
         for subscription in self.subscriptions:

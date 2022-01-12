@@ -27,5 +27,7 @@ class CrossExchangeMarketMaker:
         """Update the order book of a given instrument."""
         # Update node
         self.graph.update_node(correlationId, bidPrice, bidSize, askPrice, askSize)
-        # Check for arbitrage opportunity
-        self.check_arbitrage()
+        # Traverse edges checking for arbitrage
+        for nodeId in self.graph[correlationId].adjacency_list:
+            # Check for arbitrage opportunity
+            self.check_arbitrage(correlationId, nodeId)

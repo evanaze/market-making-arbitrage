@@ -3,8 +3,9 @@ from cross_exchange_market_maker import CrossExchangeMarketMaker
 
 
 class MyEventHandler(EventHandler):
-    def __init__(self, crossExchMM=CrossExchangeMarketMaker()):
+    def __init__(self, logger, crossExchMM=CrossExchangeMarketMaker()):
         super().__init__()
+        self.logger = logger
         self.crossExchMM = crossExchMM
 
     def parse_element(self):
@@ -22,10 +23,15 @@ class MyEventHandler(EventHandler):
     def processEvent(self, event: Event, session: Session) -> bool:
         if event.getType() == Event.Type_SUBSCRIPTION_DATA:
             for message in event.getMessageList():
+                # Get the correlation ID from the message.
                 correlationId = message.getCorrelationIdList()[0]
+                # Parse the elements from the message
                 for self.element in message.getElementList():
+                    # Parse the element
                     self.parse_element()
+                    # Log the data to the log file
                     try:
+                        self.logger.debug(f"CID: {correlationId}, BB: {self.bidPrice}, BA: {self.askPrice}")
                         self.crossExchMM.order_book_update(correlationId, self.bidPrice, self.bidSize, self.askPrice, self.askSize)
                     except Exception as e:
                         print(e)
