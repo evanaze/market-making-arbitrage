@@ -29,7 +29,7 @@ class Graph:
         self.node_list[correlationId_1].add_edge(correlationId_2)
         self.node_list[correlationId_2].add_edge(correlationId_1)
 
-    def update_node(self, correlationId, bestBidPrice, bestBidSize, bestAskPrice, bestAskSize):
+    def update_node(self, correlationId, bestBidPrice=0, bestBidSize=0, bestAskPrice=0, bestAskSize=0):
         try:
             self.node_list[correlationId].update_node(bestBidPrice, bestBidSize, bestAskPrice, bestAskSize)
         except KeyError:
