@@ -6,14 +6,13 @@ from log import logger
 class CrossExchangeMarketMaker:
     def __init__(self, graph=Graph()):
         self.graph = graph
+        self.logger = logger
 
     def check_arbitrage(self, correlationId_1, correlationId_2) -> tuple:
         "Check for arbitrage opportunity between two exchanges."
-        # Check if we have recieved messages from at least two exchanges
-        if len(self.graph) == 1:
-            logger.info("Not enough info on other order books to check for arbitrage.")
-            return ()
+        # Get the nodes we are checking for arbitrage for
         node_1, node_2 = self.graph[correlationId_1], self.graph[correlationId_2]
+        # Try to look for arbitrage opportunity
         if node_1.bestAskPrice > node_2.bestBidPrice:
             logger.info(f"Arbitrage opportunity between instrument {correlationId_1} and {correlationId_2}.")
             return (correlationId_1, correlationId_2)
@@ -28,6 +27,16 @@ class CrossExchangeMarketMaker:
         # Update node
         self.graph.update_node(correlationId, bidPrice, bidSize, askPrice, askSize)
         # Traverse edges checking for arbitrage
-        for nodeId in self.graph[correlationId].adjacency_list:
-            # Check for arbitrage opportunity
-            self.check_arbitrage(correlationId, nodeId)
+        for nodeId, activated in self.graph[correlationId].adjacency_list.items():
+            # Check if the edge is activated
+            if activated:    
+                # Check for arbitrage opportunity
+                self.check_arbitrage(correlationId, nodeId)
+            else:
+                # If the other node has been updated but we haven't activated the edge yet
+                if self.graph[nodeId].lastUpdated:
+                    # Activate the edge for both nodes
+                    self.graph[nodeId].activate_edge(correlationId)
+                    self.graph[correlationId].activate_edge(nodeId)
+                else:
+                    self.logger.info("Edge not active yet.")
