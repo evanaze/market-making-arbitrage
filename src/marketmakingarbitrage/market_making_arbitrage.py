@@ -9,7 +9,6 @@ from log import logger
 
 class MarketMakingArbitrage:
     def __init__(self):
-        self.graph = Graph()
         self.option = SessionOptions()
         self.config = SessionConfigs()
         self.logger = logger
@@ -18,6 +17,8 @@ class MarketMakingArbitrage:
         "Creates the graph of instruments."
         # Create subscriptions
         self.subscriptions = []
+        # Create the graph 
+        self.graph = Graph()
         # Coinbase subscription
         self.graph.update_node("1")
         self.subscriptions.append(Subscription('coinbase', 'BTC-USD', 'MARKET_DEPTH', "MARKET_DEPTH_MAX=1", "1"))

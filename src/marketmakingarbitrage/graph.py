@@ -11,6 +11,7 @@ class Node:
         self.bestBidSize = bestBidSize
         self.bestAskPrice = bestAskPrice
         self.bestAskSize = bestAskSize
+        return self
 
     def add_edge(self, correlationId):
         self.adjacency_list.add(correlationId)
@@ -26,6 +27,7 @@ class Graph:
         return self.node_list[correlationId]
 
     def add_edge(self, correlationId_1, correlationId_2):
+        print("Node list:", self.node_list)
         self.node_list[correlationId_1].add_edge(correlationId_2)
         self.node_list[correlationId_2].add_edge(correlationId_1)
 
@@ -33,4 +35,5 @@ class Graph:
         try:
             self.node_list[correlationId].update_node(bestBidPrice, bestBidSize, bestAskPrice, bestAskSize)
         except KeyError:
+            print("Making new node")
             self.node_list[correlationId] = Node(correlationId).update_node(bestBidPrice, bestBidSize, bestAskPrice, bestAskSize)
