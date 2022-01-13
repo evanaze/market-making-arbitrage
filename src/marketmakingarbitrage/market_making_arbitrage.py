@@ -20,10 +20,10 @@ class MarketMakingArbitrage:
         self.subscriptions = []
         # Coinbase subscription
         self.subscriptions.append(Subscription('coinbase', 'BTC-USD', 'MARKET_DEPTH', "MARKET_DEPTH_MAX=1", "1"))
-        self.graph["1"]
+        self.graph.add_node("1")
         # Kraken subscription
         self.subscriptions.append(Subscription('kraken', 'XBT/USD', 'MARKET_DEPTH', "MARKET_DEPTH_MAX=10", "2"))
-        self.graph["2"]
+        self.graph.add_node("2")
         # Add an edge between the instruments
         self.graph.add_edge("1", "2")
 

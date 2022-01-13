@@ -39,6 +39,9 @@ class Graph:
     def __getitem__(self, correlationId):
         return self.node_list[correlationId]
 
+    def add_node(self, correlationId):
+        self.node_list[correlationId]
+
     def add_edge(self, correlationId_1, correlationId_2):
         """Adds a deactivated edge between two nodes."""
         self.node_list[correlationId_1].add_edge(correlationId_2)
