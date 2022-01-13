@@ -4,8 +4,10 @@ import datetime as dt
 
 class Node:
     "A node on the graph of exchanges and instruments."
-    def __init__(self, correlationId=0):
+    def __init__(self, exchange, pair, correlationId=0):
         self.lastUpdated = None
+        self.pair = pair
+        self.exchange = exchange
         self.correlationId = correlationId
         self.adjacencyList = defaultdict(int)
 
@@ -39,8 +41,8 @@ class Graph:
     def __getitem__(self, correlationId):
         return self.node_list[correlationId]
 
-    def add_node(self, correlationId):
-        self.node_list[correlationId]
+    def add_node(self, correlationId, exchange, pair):
+        self.node_list[correlationId] = Node(correlationId, exchange, pair)
 
     def add_edge(self, correlationId_1, correlationId_2):
         """Adds a deactivated edge between two nodes."""
