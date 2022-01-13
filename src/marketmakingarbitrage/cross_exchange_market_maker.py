@@ -1,10 +1,9 @@
 from collections import Counter, defaultdict
 from graph import Graph
-from log import logger
 
 
 class CrossExchangeMarketMaker:
-    def __init__(self, graph=Graph()):
+    def __init__(self, logger, graph=Graph()):
         self.graph = graph
         self.logger = logger
 
@@ -14,10 +13,10 @@ class CrossExchangeMarketMaker:
         node_1, node_2 = self.graph[correlationId_1], self.graph[correlationId_2]
         # Try to look for arbitrage opportunity
         if node_1.bestAskPrice > node_2.bestBidPrice:
-            logger.info(f"Arbitrage opportunity between instrument {correlationId_1} and {correlationId_2}.")
+            self.logger.info(f"Arbitrage opportunity between instrument {correlationId_1} and {correlationId_2}.")
             return (correlationId_1, correlationId_2)
         elif node_2.bestAskPrice > node_1.bestBidPrice:
-            logger.info(f"Arbitrage opportunity between instrument {correlationId_2} and {correlationId_1}.")
+            self.logger.info(f"Arbitrage opportunity between instrument {correlationId_2} and {correlationId_1}.")
             return (correlationId_2, correlationId_1)
         else:
             return ()
@@ -36,6 +35,7 @@ class CrossExchangeMarketMaker:
                 # If the other node has been updated but we haven't activated the edge yet
                 if self.graph[nodeId].lastUpdated:
                     # Activate the edge
+                    self.logger.info(f"Activating edge between nodes {correlationId} and {nodeId}.")
                     self.graph.activate_edge(correlationId, nodeId)
                 else:
                     self.logger.info("Edge not active yet.")

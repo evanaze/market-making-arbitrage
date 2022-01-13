@@ -1,9 +1,8 @@
 from ccapi import EventHandler, Session, Subscription, Event
-from cross_exchange_market_maker import CrossExchangeMarketMaker
 
 
 class MyEventHandler(EventHandler):
-    def __init__(self, logger, crossExchMM=CrossExchangeMarketMaker()):
+    def __init__(self, logger, crossExchMM):
         super().__init__()
         self.logger = logger
         self.crossExchMM = crossExchMM
