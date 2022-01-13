@@ -28,14 +28,14 @@ class CrossExchangeMarketMaker:
         # Traverse edges checking for arbitrage
         for nodeId, activated in self.graph[correlationId].adjacencyList.items():
             # Check if the edge is activated
-            if activated:    
-                # Check for arbitrage opportunity
-                self.check_arbitrage(correlationId, nodeId)
-            else:
+            if not activated:    
                 # If the other node has been updated but we haven't activated the edge yet
-                if self.graph[nodeId].lastUpdated:
+                if not self.graph[nodeId].lastUpdated:
+                    self.logger.info("Edge not active yet.")
+                    continue
+                else:
                     # Activate the edge
                     self.logger.info(f"Activating edge between nodes {correlationId} and {nodeId}.")
                     self.graph.activate_edge(correlationId, nodeId)
-                else:
-                    self.logger.info("Edge not active yet.")
+            # Check for arbitrage opportunity
+            self.check_arbitrage(correlationId, nodeId)
