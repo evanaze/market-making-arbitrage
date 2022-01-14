@@ -1,3 +1,4 @@
+import os
 from collections import Counter, defaultdict
 from graph import Graph
 
@@ -8,6 +9,7 @@ class CrossExchangeMarketMaker:
         self.logger = logger
         self.threshold = 0.002
         self.threshold_mult = 1/(1 - self.threshold)
+        print("Paper trade:", os.getenv("PAPER_TRADE"))
 
     def check_arbitrage(self, correlationId_1, correlationId_2) -> tuple:
         """Check for arbitrage opportunity between two exchanges.
@@ -23,20 +25,24 @@ class CrossExchangeMarketMaker:
         # Buy side logic
         if node_1.bestBidPrice <= node_2.bestBidPrice * self.threshold_mult:
             price_difference =  node_2.bestBidPrice * self.threshold_mult - node_1.bestBidPrice
-            self.logger.info(f"Arbitrage opportunity for pair {node_1.pair} between exchange {node_1.exchange} and {node_2.exchange}. Price difference={price_difference}. Submitting a buy order on {exchange}.")
+            self.logger.info(f"Arbitrage opportunity for pair {node_1.pair} between exchange {node_1.exchange} and {node_2.exchange}. Submit a buy order on {node_1.exchange}.")
+            self.logger.debug(f"{node_1.exchange} best bid: {node_1.bestBidPrice}, {node_2.exchange} best bid: {node_2.bestBidPrice}. Possible return={price_difference}.")
             return (correlationId_1, correlationId_2)
         elif node_2.bestBidPrice <= node_1.bestBidPrice * self.threshold_mult:
             price_difference = node_1.bestBidPrice * self.threshold_mult - node_2.bestBidPrice 
-            self.logger.info(f"Arbitrage opportunity for pair {node_1.pair} between exchange {node_2.exchange} and {node_1.exchange}. Price difference={price_difference}. Submitting a buy order on {exchange}.")
+            self.logger.info(f"Arbitrage opportunity for pair {node_1.pair} between exchange {node_2.exchange} and {node_1.exchange}. Submit a buy order on {node_2.exchange}.")
+            self.logger.debug(f"{node_2.exchange} best bid: {node_2.bestBidPrice}, {node_1.exchange} best bid: {node_1.bestBidPrice}. Possible return={price_difference}.")
             return (correlationId_2, correlationId_1)
         # Ask side logic
         elif node_1.bestAskPrice >= node_2.bestAskPrice * self.threshold_mult:
             price_difference = node_2.bestAskPrice * self.threshold_mult - node_1.bestAskPrice
-            self.logger.info(f"Arbitrage opportunity for pair {node_1.pair} between exchange {node_1.exchange} and {node_2.exchange}. Price difference={price_difference}. Submitting a sell order on {exchange}.")
+            self.logger.info(f"Arbitrage opportunity for pair {node_1.pair} between exchange {node_1.exchange} and {node_2.exchange}. Submit a sell order on {node_1.exchange}.")
+            self.logger.debug(f"{node_1.exchange} best ask: {node_1.bestAskPrice}, {node_2.exchange} best ask: {node_2.bestAidPrice}. Possible return={price_difference}.")
             return (correlationId_1, correlationId_2)
         elif node_2.bestAskPrice >= node_1.bestAskPrice * self.threshold_mult:
             price_difference = node_1.bestAskPrice * self.threshold_mult - node_2.bestAskPrice
-            self.logger.info(f"Arbitrage opportunity for pair {node_1.pair} between exchange {node_2.exchange} and {node_1.exchange}. Price difference={price_difference}. Submitting a sell order on {exchange}.")
+            self.logger.info(f"Arbitrage opportunity for pair {node_1.pair} between exchange {node_2.exchange} and {node_1.exchange}. Submit a sell order on {node_2.exchange}.")
+            self.logger.debug(f"{node_2.exchange} best ask: {node_2.bestAskPrice}, {node_1.exchange} best ask: {node_1.bestAidPrice}. Possible return={price_difference}.")
             return (correlationId_2, correlationId_1)
         else:
             return ()
