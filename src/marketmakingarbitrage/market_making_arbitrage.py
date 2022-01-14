@@ -8,11 +8,12 @@ from log import logger
 
 
 class MarketMakingArbitrage:
-    def __init__(self):
+    def __init__(self, duration=None):
         self.logger = logger
         self.graph = Graph()
         self.option = SessionOptions()
         self.config = SessionConfigs()
+        self.duration = duration
 
     def build_graph(self):
         "Creates the graph of instruments."
@@ -40,9 +41,11 @@ class MarketMakingArbitrage:
         # Subscribe to instruments
         for subscription in self.subscriptions:
             session.subscribe(subscription)
-        time.sleep(10)
+        # Sleep to allow the program to run
+        if self.duration:
+            time.sleep(self.duration)
         session.stop()
         self.logger.info('Bye')
 
 if __name__ == '__main__':
-    MarketMakingArbitrage().market_making_arbitrage()
+    MarketMakingArbitrage().market_making_arbitrage(10)
