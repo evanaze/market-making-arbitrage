@@ -13,8 +13,10 @@ class CrossExchangeMarketMaker:
         """Check for arbitrage opportunity between two exchanges.
         
         The logic is as such:
-        - If the price on exchange 1 is (threshold*100)% lower than the price on exchange 2, then buy on exchange 1.
-            - I.e. if exchange_1 * (1-0.002) <= exchange_2 -> Buy on exchange 1
+        - If the bid price on exchange 1 is (threshold*100)% lower than the bid price on exchange 2, then buy on exchange 1.
+            - I.e. if bidExchange_1 <= bidExchange_2/(1-0.002) -> Buy on exchange 1
+        - If the ask price on exchange 1 is (threshold*100)% higher than the ask price on exchange 2, then sell on exchange 1.
+            - I.e. if askExchange_1 >= askExchange_2/(1-0.002) -> Sell on exchange 1
         """
         # Get the nodes we are checking for arbitrage for
         node_1, node_2 = self.graph[correlationId_1], self.graph[correlationId_2]

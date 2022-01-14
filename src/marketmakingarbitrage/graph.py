@@ -42,7 +42,7 @@ class Graph:
         return self.node_list[correlationId]
 
     def add_node(self, correlationId, exchange, pair):
-        self.node_list[correlationId] = Node(correlationId, exchange, pair)
+        self.node_list[correlationId] = Node(exchange=exchange, pair=pair, correlationId=correlationId)
 
     def add_edge(self, correlationId_1, correlationId_2):
         """Adds a deactivated edge between two nodes."""
