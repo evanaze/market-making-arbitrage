@@ -22,25 +22,21 @@ class CrossExchangeMarketMaker:
         node_1, node_2 = self.graph[correlationId_1], self.graph[correlationId_2]
         # Buy side logic
         if node_1.bestBidPrice <= node_2.bestBidPrice * self.threshold_mult:
-            exchange = node_1.exchange
             price_difference =  node_2.bestBidPrice * self.threshold_mult - node_1.bestBidPrice
-            self.logger.info(f"Arbitrage opportunity between instrument {correlationId_1} and {correlationId_2}. Expected profit={price_difference}. Submitting a buy order on {exchange}.")
+            self.logger.info(f"Arbitrage opportunity for pair {node_1.pair} between exchange {node_1.exchange} and {node_2.exchange}. Price difference={price_difference}. Submitting a buy order on {exchange}.")
             return (correlationId_1, correlationId_2)
         elif node_2.bestBidPrice <= node_1.bestBidPrice * self.threshold_mult:
-            exchange = node_2.exchange
             price_difference = node_1.bestBidPrice * self.threshold_mult - node_2.bestBidPrice 
-            self.logger.info(f"Arbitrage opportunity between instrument {correlationId_2} and {correlationId_1}. Expected profit={price_difference}. Submitting a buy order on {exchange}.")
+            self.logger.info(f"Arbitrage opportunity for pair {node_1.pair} between exchange {node_2.exchange} and {node_1.exchange}. Price difference={price_difference}. Submitting a buy order on {exchange}.")
             return (correlationId_2, correlationId_1)
         # Ask side logic
         elif node_1.bestAskPrice >= node_2.bestAskPrice * self.threshold_mult:
-            exchange = node_1.exchange
             price_difference = node_2.bestAskPrice * self.threshold_mult - node_1.bestAskPrice
-            self.logger.info(f"Arbitrage opportunity between instrument {correlationId_1} and {correlationId_2}. Expected profit={price_difference}. Submitting a sell order on {exchange}.")
+            self.logger.info(f"Arbitrage opportunity for pair {node_1.pair} between exchange {node_1.exchange} and {node_2.exchange}. Price difference={price_difference}. Submitting a sell order on {exchange}.")
             return (correlationId_1, correlationId_2)
         elif node_2.bestAskPrice >= node_1.bestAskPrice * self.threshold_mult:
-            exchange = node_2.exchange
             price_difference = node_1.bestAskPrice * self.threshold_mult - node_2.bestAskPrice
-            self.logger.info(f"Arbitrage opportunity between instrument {correlationId_2} and {correlationId_1}. Expected profit={price_difference}. Submitting a sell order on {exchange}.")
+            self.logger.info(f"Arbitrage opportunity for pair {node_1.pair} between exchange {node_2.exchange} and {node_1.exchange}. Price difference={price_difference}. Submitting a sell order on {exchange}.")
             return (correlationId_2, correlationId_1)
         else:
             return ()
@@ -48,9 +44,11 @@ class CrossExchangeMarketMaker:
     def order_book_update(self, correlationId: str, bidPrice: float, bidSize: float, askPrice: float, askSize: float):
         """Update the order book of a given instrument."""
         # Update node
-        self.graph.update_node(correlationId, bidPrice, bidSize, askPrice, askSize)
+        node = self.graph[correlationId].update_node(bidPrice, bidSize, askPrice, askSize)
+        # Log the data to the log file
+        self.logger.debug(f"Order book update for {node.pair} on {node.exchange}. BB: {bidPrice}, BA: {askPrice}")
         # Traverse edges checking for arbitrage
-        for nodeId, activated in self.graph[correlationId].adjacencyList.items():
+        for nodeId, activated in node.adjacencyList.items():
             # Check if the edge is activated
             if not activated:    
                 # If the other node has been updated but we haven't activated the edge yet
