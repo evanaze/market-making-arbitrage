@@ -13,7 +13,6 @@ class MarketMakingArbitrage:
         self.graph = Graph()
         self.option = SessionOptions()
         self.config = SessionConfigs()
-        self.duration = duration
 
     def build_graph(self):
         "Creates the graph of instruments."
@@ -28,7 +27,7 @@ class MarketMakingArbitrage:
         # Add an edge between the instruments
         self.graph.add_edge("1", "2")
 
-    def market_making_arbitrage(self):
+    def market_making_arbitrage(self, duration=None):
         "The main process."
         # Make a list of subscriptions
         self.build_graph()
@@ -42,8 +41,8 @@ class MarketMakingArbitrage:
         for subscription in self.subscriptions:
             session.subscribe(subscription)
         # Sleep to allow the program to run
-        if self.duration:
-            time.sleep(self.duration)
+        if duration:
+            time.sleep(duration)
         session.stop()
         self.logger.info('Bye')
 
