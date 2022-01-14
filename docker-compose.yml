@@ -9,3 +9,5 @@ services:
     volumes:
       - ./src:/market_making_arbitrage/src 
       - ./logs:/market_making_arbitrage/logs 
+    env_file: 
+      - ./.env
