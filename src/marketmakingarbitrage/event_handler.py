@@ -29,7 +29,7 @@ class MyEventHandler(EventHandler):
                     # Parse the element
                     self.parse_element()
                 # Log the data to the log file
-                self.logger.debug(f"CID: {correlationId}, BB: {self.bidPrice}, BA: {self.askPrice}")
+                self.logger.debug(f"Order book update. CID: {correlationId}, BB: {self.bidPrice}, BA: {self.askPrice}")
                 # Update the order book for the node
                 self.crossExchMM.order_book_update(correlationId, self.bidPrice, self.bidSize, self.askPrice, self.askSize)
         return True  # This line is needed.
