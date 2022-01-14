@@ -6,18 +6,31 @@ class CrossExchangeMarketMaker:
     def __init__(self, logger, graph=Graph()):
         self.graph = graph
         self.logger = logger
-        self.tolerance = 0.002
+        self.threshold = 0.002
 
     def check_arbitrage(self, correlationId_1, correlationId_2) -> tuple:
-        "Check for arbitrage opportunity between two exchanges."
+        """Check for arbitrage opportunity between two exchanges.
+        
+        The logic is as such:
+        - If the price on exchange 1 is (threshold*100)% lower than the price on exchange 2, then buy on exchange 1.
+            - I.e. if exchange_1 * (1-0.002) <= exchange_2 -> Buy on exchange 1
+        """
         # Get the nodes we are checking for arbitrage for
         node_1, node_2 = self.graph[correlationId_1], self.graph[correlationId_2]
         # Try to look for arbitrage opportunity
-        if node_1.bestBidPrice > (1 + self.tolerance) * node_2.bestBidPrice:
+        if node_1.bestBidPrice * (1 - self.threshold) <= node_2.bestBidPrice:
             exchange = node_1.exchange
             self.logger.info(f"Arbitrage opportunity between instrument {correlationId_1} and {correlationId_2}. Submitting a buy order on {exchange}.")
             return (correlationId_1, correlationId_2)
-        elif node_2.bestBidPrice > (1 + self.tolerance) * node_1.bestBidPrice:
+        elif node_2.bestBidPrice * (1 - self.threshold) <=  node_1.bestBidPrice:
+            exchange = node_2.exchange
+            self.logger.info(f"Arbitrage opportunity between instrument {correlationId_2} and {correlationId_1}. Submitting a buy order on {exchange}.")
+            return (correlationId_2, correlationId_1)
+        elif node_1.bestAskPrice * (1 - self.threshold) <= node_2.bestAskPrice:
+            exchange = node_1.exchange
+            self.logger.info(f"Arbitrage opportunity between instrument {correlationId_1} and {correlationId_2}. Submitting a buy order on {exchange}.")
+            return (correlationId_1, correlationId_2)
+        elif node_2.bestAskPrice * (1 - self.threshold) <= node_1.bestAskPrice:
             exchange = node_2.exchange
             self.logger.info(f"Arbitrage opportunity between instrument {correlationId_2} and {correlationId_1}. Submitting a buy order on {exchange}.")
             return (correlationId_2, correlationId_1)
