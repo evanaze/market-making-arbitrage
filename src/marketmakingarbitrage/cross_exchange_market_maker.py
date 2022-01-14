@@ -23,20 +23,24 @@ class CrossExchangeMarketMaker:
         # Buy side logic
         if node_1.bestBidPrice <= node_2.bestBidPrice * self.threshold_mult:
             exchange = node_1.exchange
-            self.logger.info(f"Arbitrage opportunity between instrument {correlationId_1} and {correlationId_2}. Submitting a buy order on {exchange}.")
+            price_difference =  node_2.bestBidPrice * self.threshold_mult - node_1.bestBidPrice
+            self.logger.info(f"Arbitrage opportunity between instrument {correlationId_1} and {correlationId_2}. Expected profit={price_difference}. Submitting a buy order on {exchange}.")
             return (correlationId_1, correlationId_2)
-        elif node_2.bestBidPrice <=  node_1.bestBidPrice * self.threshold_mult:
+        elif node_2.bestBidPrice <= node_1.bestBidPrice * self.threshold_mult:
             exchange = node_2.exchange
-            self.logger.info(f"Arbitrage opportunity between instrument {correlationId_2} and {correlationId_1}. Submitting a buy order on {exchange}.")
+            price_difference = node_1.bestBidPrice * self.threshold_mult - node_2.bestBidPrice 
+            self.logger.info(f"Arbitrage opportunity between instrument {correlationId_2} and {correlationId_1}. Expected profit={price_difference}. Submitting a buy order on {exchange}.")
             return (correlationId_2, correlationId_1)
         # Ask side logic
         elif node_1.bestAskPrice >= node_2.bestAskPrice * self.threshold_mult:
             exchange = node_1.exchange
-            self.logger.info(f"Arbitrage opportunity between instrument {correlationId_1} and {correlationId_2}. Submitting a sell order on {exchange}.")
+            price_difference = node_2.bestAskPrice * self.threshold_mult - node_1.bestAskPrice
+            self.logger.info(f"Arbitrage opportunity between instrument {correlationId_1} and {correlationId_2}. Expected profit={price_difference}. Submitting a sell order on {exchange}.")
             return (correlationId_1, correlationId_2)
         elif node_2.bestAskPrice >= node_1.bestAskPrice * self.threshold_mult:
             exchange = node_2.exchange
-            self.logger.info(f"Arbitrage opportunity between instrument {correlationId_2} and {correlationId_1}. Submitting a sell order on {exchange}.")
+            price_difference = node_1.bestAskPrice * self.threshold_mult - node_2.bestAskPrice
+            self.logger.info(f"Arbitrage opportunity between instrument {correlationId_2} and {correlationId_1}. Expected profit={price_difference}. Submitting a sell order on {exchange}.")
             return (correlationId_2, correlationId_1)
         else:
             return ()
