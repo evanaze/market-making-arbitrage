@@ -56,4 +56,5 @@ class Graph:
 
     def update_node(self, correlationId, bestBidPrice=None, bestBidSize=None, bestAskPrice=None, bestAskSize=None):
         """Updates the node with the new information."""
-        self.node_list[correlationId].update_node(bestBidPrice, bestBidSize, bestAskPrice, bestAskSize)
+        node = self.node_list[correlationId]
+        return node.update_node(bestBidPrice, bestBidSize, bestAskPrice, bestAskSize)
