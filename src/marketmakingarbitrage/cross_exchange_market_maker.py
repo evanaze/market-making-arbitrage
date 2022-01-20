@@ -1,6 +1,7 @@
 import os
 from collections import Counter, defaultdict
 from graph import Graph
+from order_handler import OrderHandler
 
 
 class CrossExchangeMarketMaker:
@@ -10,9 +11,11 @@ class CrossExchangeMarketMaker:
         self.threshold = 0.002
         self.ub = 1 + self.threshold
         self.lb = 1 - self.threshold
+        self.orderHandler = OrderHandler(logger)
+        self.suppress_orders = False
         self.logger.info(f"Paper trade: {os.getenv('PAPER_TRADE')}")
 
-    def check_arbitrage(self, correlationId_1, correlationId_2) -> tuple:
+    def check_arbitrage(self, correlationId_1: str, correlationId_2: str) -> None:
         """Check for arbitrage opportunity between two exchanges.
         
         The logic is as such:
@@ -23,28 +26,26 @@ class CrossExchangeMarketMaker:
         """
         # Get the nodes we are checking for arbitrage for
         node_1, node_2 = self.graph[correlationId_1], self.graph[correlationId_2]
-        buy_price_difference = abs(node_1.bestBidPrice - node_2.bestBidPrice)
-        ask_price_difference = abs(node_1.bestAskPrice - node_2.bestAskPrice)
+        buy_arb_opportunity = abs(node_1.bestBidPrice - node_2.bestBidPrice) - self.threshold
+        ask_arb_opportunity = abs(node_1.bestAskPrice - node_2.bestAskPrice) - self.threshold
         # Buy side logic
         if node_1.bestBidPrice / node_2.bestBidPrice <= self.lb:
-            self.logger.info(f"Buy side arbitrage opportunity for pair {node_1.pair} between exchange {node_1.exchange} and {node_2.exchange}. Submit a buy order on {node_1.exchange}.")
-            self.logger.debug(f"{node_1.exchange} best bid: {node_1.bestBidPrice}, {node_2.exchange} best bid: {node_2.bestBidPrice}. Possible arbitrage={buy_price_difference}.")
-            return (correlationId_1, correlationId_2)
+            self.logger.info(f"Buy side arbitrage opportunity for pair {node_1.pair} between exchange {node_1.exchange} and {node_2.exchange}.")
+            self.logger.debug(f"{node_1.exchange} best bid: {node_1.bestBidPrice}, {node_2.exchange} best bid: {node_2.bestBidPrice}. Possible arbitrage={buy_arb_opportunity}.")
+            self.orderHandler.submit_order(node=node_1, quantity=0, offer=node_1.bestBidPrice, buy=True)
         elif node_1.bestBidPrice / node_2.bestBidPrice >= self.ub:
-            self.logger.info(f"Buy side arbitrage opportunity for pair {node_1.pair} between exchange {node_2.exchange} and {node_1.exchange}. Submit a buy order on {node_2.exchange}.")
-            self.logger.debug(f"{node_2.exchange} best bid: {node_2.bestBidPrice}, {node_1.exchange} best bid: {node_1.bestBidPrice}. Possible arbitrage={buy_price_difference}.")
-            return (correlationId_2, correlationId_1)
+            self.logger.info(f"Buy side arbitrage opportunity for pair {node_1.pair} between exchange {node_2.exchange} and {node_1.exchange}.")
+            self.logger.debug(f"{node_2.exchange} best bid: {node_2.bestBidPrice}, {node_1.exchange} best bid: {node_1.bestBidPrice}. Possible arbitrage={buy_arb_opportunity}.")
+            self.orderHandler.submit_order(node=node_2, quantity=0, offer=node_2.bestBidPrice, buy=True)
         # Ask side logic
         elif node_1.bestAskPrice / node_2.bestAskPrice >= self.ub:
-            self.logger.info(f"Sell side arbitrage opportunity for pair {node_1.pair} between exchange {node_1.exchange} and {node_2.exchange}. Submit a sell order on {node_1.exchange}.")
-            self.logger.debug(f"{node_1.exchange} best ask: {node_1.bestAskPrice}, {node_2.exchange} best ask: {node_2.bestAskPrice}. Possible arbitrage={ask_price_difference}.")
-            return (correlationId_1, correlationId_2)
+            self.logger.info(f"Sell side arbitrage opportunity for pair {node_1.pair} between exchange {node_1.exchange} and {node_2.exchange}.")
+            self.logger.debug(f"{node_1.exchange} best ask: {node_1.bestAskPrice}, {node_2.exchange} best ask: {node_2.bestAskPrice}. Possible arbitrage={ask_arb_opportunity}.")
+            self.orderHandler.submit_order(node=node_1, quantity=0, offer=node_1.bestAskPrice, buy=False)
         elif node_1.bestAskPrice / node_2.bestAskPrice <= self.lb:
-            self.logger.info(f"Sell side arbitrage opportunity for pair {node_1.pair} between exchange {node_2.exchange} and {node_1.exchange}. Submit a sell order on {node_2.exchange}.")
-            self.logger.debug(f"{node_2.exchange} best ask: {node_2.bestAskPrice}, {node_1.exchange} best ask: {node_1.bestAskPrice}. Possible arbitrage={ask_price_difference}.")
-            return (correlationId_2, correlationId_1)
-        else:
-            return ()
+            self.logger.info(f"Sell side arbitrage opportunity for pair {node_1.pair} between exchange {node_2.exchange} and {node_1.exchange}.")
+            self.logger.debug(f"{node_2.exchange} best ask: {node_2.bestAskPrice}, {node_1.exchange} best ask: {node_1.bestAskPrice}. Possible arbitrage={ask_arb_opportunity}.")
+            self.orderHandler.submit_order(node=node_2, quantity=0, offer=node_2.bestAskPrice, buy=False)
 
     def order_book_update(self, correlationId: str, bidPrice: float, bidSize: float, askPrice: float, askSize: float):
         """Update the order book of a given instrument."""
