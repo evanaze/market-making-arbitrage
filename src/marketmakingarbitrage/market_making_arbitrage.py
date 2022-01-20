@@ -47,4 +47,4 @@ class MarketMakingArbitrage:
         self.logger.info('Bye')
 
 if __name__ == '__main__':
-    MarketMakingArbitrage().market_making_arbitrage(60)
+    MarketMakingArbitrage().market_making_arbitrage(600)
