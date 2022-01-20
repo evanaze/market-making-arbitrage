@@ -8,7 +8,8 @@ class CrossExchangeMarketMaker:
         self.graph = graph
         self.logger = logger
         self.threshold = 0.002
-        self.threshold_mult = 1/(1 - self.threshold)
+        self.ub = 1 + self.threshold
+        self.lb = 1 - self.threshold
         self.logger.info(f"Paper trade: {os.getenv('PAPER_TRADE')}")
 
     def check_arbitrage(self, correlationId_1, correlationId_2) -> tuple:
@@ -22,27 +23,25 @@ class CrossExchangeMarketMaker:
         """
         # Get the nodes we are checking for arbitrage for
         node_1, node_2 = self.graph[correlationId_1], self.graph[correlationId_2]
+        buy_price_difference = abs(node_1.bestBidPrice - node_2.bestBidPrice)
+        ask_price_difference = abs(node_1.bestAskPrice - node_2.bestAskPrice)
         # Buy side logic
-        if node_1.bestBidPrice >= node_2.bestBidPrice * self.threshold_mult:
-            price_difference =  node_2.bestBidPrice * self.threshold_mult - node_1.bestBidPrice
+        if node_1.bestBidPrice / node_2.bestBidPrice <= self.lb:
             self.logger.info(f"Buy side arbitrage opportunity for pair {node_1.pair} between exchange {node_1.exchange} and {node_2.exchange}. Submit a buy order on {node_1.exchange}.")
-            self.logger.debug(f"{node_1.exchange} best bid: {node_1.bestBidPrice}, {node_2.exchange} best bid: {node_2.bestBidPrice}. Possible return={price_difference}.")
+            self.logger.debug(f"{node_1.exchange} best bid: {node_1.bestBidPrice}, {node_2.exchange} best bid: {node_2.bestBidPrice}. Possible arbitrage={buy_price_difference}.")
             return (correlationId_1, correlationId_2)
-        elif node_2.bestBidPrice >= node_1.bestBidPrice * self.threshold_mult:
-            price_difference = node_1.bestBidPrice * self.threshold_mult - node_2.bestBidPrice 
+        elif node_1.bestBidPrice / node_2.bestBidPrice >= self.ub:
             self.logger.info(f"Buy side arbitrage opportunity for pair {node_1.pair} between exchange {node_2.exchange} and {node_1.exchange}. Submit a buy order on {node_2.exchange}.")
-            self.logger.debug(f"{node_2.exchange} best bid: {node_2.bestBidPrice}, {node_1.exchange} best bid: {node_1.bestBidPrice}. Possible return={price_difference}.")
+            self.logger.debug(f"{node_2.exchange} best bid: {node_2.bestBidPrice}, {node_1.exchange} best bid: {node_1.bestBidPrice}. Possible arbitrage={buy_price_difference}.")
             return (correlationId_2, correlationId_1)
         # Ask side logic
-        elif node_1.bestAskPrice <= node_2.bestAskPrice * self.threshold_mult:
-            price_difference = node_2.bestAskPrice * self.threshold_mult - node_1.bestAskPrice
+        elif node_1.bestAskPrice / node_2.bestAskPrice >= self.ub:
             self.logger.info(f"Sell side arbitrage opportunity for pair {node_1.pair} between exchange {node_1.exchange} and {node_2.exchange}. Submit a sell order on {node_1.exchange}.")
-            self.logger.debug(f"{node_1.exchange} best ask: {node_1.bestAskPrice}, {node_2.exchange} best ask: {node_2.bestAskPrice}. Possible return={price_difference}.")
+            self.logger.debug(f"{node_1.exchange} best ask: {node_1.bestAskPrice}, {node_2.exchange} best ask: {node_2.bestAskPrice}. Possible arbitrage={ask_price_difference}.")
             return (correlationId_1, correlationId_2)
-        elif node_2.bestAskPrice <= node_1.bestAskPrice * self.threshold_mult:
-            price_difference = node_1.bestAskPrice * self.threshold_mult - node_2.bestAskPrice
+        elif node_1.bestAskPrice / node_2.bestAskPrice <= self.lb:
             self.logger.info(f"Sell side arbitrage opportunity for pair {node_1.pair} between exchange {node_2.exchange} and {node_1.exchange}. Submit a sell order on {node_2.exchange}.")
-            self.logger.debug(f"{node_2.exchange} best ask: {node_2.bestAskPrice}, {node_1.exchange} best ask: {node_1.bestAskPrice}. Possible return={price_difference}.")
+            self.logger.debug(f"{node_2.exchange} best ask: {node_2.bestAskPrice}, {node_1.exchange} best ask: {node_1.bestAskPrice}. Possible arbitrage={ask_price_difference}.")
             return (correlationId_2, correlationId_1)
         else:
             return ()
