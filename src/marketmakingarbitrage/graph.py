@@ -4,14 +4,16 @@ import datetime as dt
 
 class Node:
     "A node on the graph of exchanges and instruments."
-    def __init__(self, exchange, pair, correlationId=0):
-        self.lastUpdated = None
+    def __init__(self, exchange: str, pair: str, correlationId=0, suppress_duration=600):
         self.pair = pair
         self.exchange = exchange
+        self.lastUpdated = None
         self.correlationId = correlationId
         self.adjacencyList = defaultdict(int)
+        self.suppress_orders_flag = False
+        self.suppress_duration = suppress_duration
 
-    def update_node(self, bestBidPrice, bestBidSize, bestAskPrice, bestAskSize):
+    def update_node(self, bestBidPrice: float, bestBidSize: float, bestAskPrice: float, bestAskSize: float):
         """Update the information on a node."""
         # Update the order book details
         self.bestBidPrice = bestBidPrice
@@ -22,13 +24,28 @@ class Node:
         self.lastUpdated = dt.datetime.now(tz=dt.timezone.utc)
         return self
 
-    def add_edge(self, correlationId):
+    def add_edge(self, correlationId: str):
         """Add a new deactivated edge to the adjacency list."""
         self.adjacencyList[correlationId]
 
-    def activate_edge(self, correlationId):
+    def activate_edge(self, correlationId: str):
         """Activate the edge between two nodes on the adjacency list."""
         self.adjacencyList[correlationId] = 1
+
+    def suppress_orders(self):
+        """Suppresses future orders for the specified duration."""
+        self.reactivate_orders_timestamp = dt.datetime.now(tz=dt.timezone.utc) + dt.timedelta(seconds=self.suppress_duration)
+        self.suppress_orders_flag = True
+
+    def check_order_suppression(self) -> bool:
+        """Checks whether we can submit a new order."""
+        if not self.suppress_orders_flag:
+            return True
+        elif dt.datetime.now(tz=dt.timezone.utc) < self.reactivate_orders_timestamp:
+            return False 
+        else:
+            self.suppress_orders_flag = False 
+            return True
 
 class Graph:
     """A graph of instruments on exchanges and possible trade pairs."""
