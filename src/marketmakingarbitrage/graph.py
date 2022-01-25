@@ -32,6 +32,10 @@ class Node:
         """Activate the edge between two nodes on the adjacency list."""
         self.adjacencyList[correlationId] = 1
 
+    def new_order(self):
+        """Updates the node status for a new order"""
+        self.suppress_orders()
+
     def suppress_orders(self):
         """Suppresses future orders for the specified duration."""
         self.reactivate_orders_timestamp = dt.datetime.now(tz=dt.timezone.utc) + dt.timedelta(seconds=self.suppress_duration)

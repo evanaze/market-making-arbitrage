@@ -33,31 +33,35 @@ class CrossExchangeMarketMaker:
             self.logger.info(f"Buy side arbitrage opportunity for pair {node_1.pair} between exchange {node_1.exchange} and {node_2.exchange}.")
             self.logger.debug(f"{node_1.exchange} best bid: {node_1.bestBidPrice}, {node_2.exchange} best bid: {node_2.bestBidPrice}. Possible arbitrage={buy_arb_opportunity}.")
             # Submit an order
-            self.orderHandler.submit_order(node=node_1, quantity=0, offer=node_1.bestBidPrice, buy=True)
-            # Suppress orders for the node
-            self.graph[correlationId_1].suppress_orders()
+            try:
+                self.orderHandler.submit_order(node=node_1, quantity=0, offer=node_1.bestBidPrice, buy=True)
+            except Exception as e:
+                self.logger.error(e)
         elif node_1.bestBidPrice / node_2.bestBidPrice >= self.ub:
             self.logger.info(f"Buy side arbitrage opportunity for pair {node_1.pair} between exchange {node_2.exchange} and {node_1.exchange}.")
             self.logger.debug(f"{node_2.exchange} best bid: {node_2.bestBidPrice}, {node_1.exchange} best bid: {node_1.bestBidPrice}. Possible arbitrage={buy_arb_opportunity}.")
-            # Submit an order
-            self.orderHandler.submit_order(node=node_2, quantity=0, offer=node_2.bestBidPrice, buy=True)
-            # Suppress orders for the node
-            self.graph[correlationId_2].suppress_orders()
+            try:
+                # Submit an order
+                self.orderHandler.submit_order(node=node_2, quantity=0, offer=node_2.bestBidPrice, buy=True)
+            except Exception as e:
+                self.logger.error(e)
         # Ask side logic
         elif node_1.bestAskPrice / node_2.bestAskPrice >= self.ub:
             self.logger.info(f"Sell side arbitrage opportunity for pair {node_1.pair} between exchange {node_1.exchange} and {node_2.exchange}.")
             self.logger.debug(f"{node_1.exchange} best ask: {node_1.bestAskPrice}, {node_2.exchange} best ask: {node_2.bestAskPrice}. Possible arbitrage={ask_arb_opportunity}.")
-            # Submit an order
-            self.orderHandler.submit_order(node=node_1, quantity=0, offer=node_1.bestAskPrice, buy=False)
-            # Suppress orders for the node
-            self.graph[correlationId_1].suppress_orders()
+            try:
+                # Submit an order
+                self.orderHandler.submit_order(node=node_1, quantity=0, offer=node_1.bestAskPrice, buy=False)
+            except Exception as e:
+                self.logger.error(e)
         elif node_1.bestAskPrice / node_2.bestAskPrice <= self.lb:
             self.logger.info(f"Sell side arbitrage opportunity for pair {node_1.pair} between exchange {node_2.exchange} and {node_1.exchange}.")
             self.logger.debug(f"{node_2.exchange} best ask: {node_2.bestAskPrice}, {node_1.exchange} best ask: {node_1.bestAskPrice}. Possible arbitrage={ask_arb_opportunity}.")
-            # Submit an order
-            self.orderHandler.submit_order(node=node_2, quantity=0, offer=node_2.bestAskPrice, buy=False)
-            # Suppress orders for the node
-            self.graph[correlationId_2].suppress_orders()
+            try:
+                # Submit an order
+                self.orderHandler.submit_order(node=node_2, quantity=0, offer=node_2.bestAskPrice, buy=False)
+            except Exception as e:
+                self.logger.error(e)
 
     def order_book_update(self, correlationId: str, bidPrice: float, bidSize: float, askPrice: float, askSize: float):
         """Update the order book of a given instrument."""
