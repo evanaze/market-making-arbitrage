@@ -1,6 +1,5 @@
 import os
-from collections import Counter, defaultdict
-from graph import Graph
+from graph import Graph, Node
 from order_handler import OrderHandler
 
 
@@ -15,7 +14,7 @@ class CrossExchangeMarketMaker:
         self.suppress_orders = False
         self.logger.info(f"Paper trade: {os.getenv('PAPER_TRADE')}")
 
-    def check_arbitrage(self, correlationId_1: str, correlationId_2: str) -> None:
+    def check_arbitrage(self, node_1: Node, node_2: Node) -> tuple:
         """Check for arbitrage opportunity between two exchanges.
         
         The logic is as such:
@@ -24,8 +23,27 @@ class CrossExchangeMarketMaker:
         - If the ask price on exchange 1 is (threshold*100)% higher than the ask price on exchange 2, then sell on exchange 1.
             - I.e. if askExchange_1 >= askExchange_2/(1-0.002) -> Sell on exchange 1
         """
-        # Get the nodes we are checking for arbitrage for
-        node_1, node_2 = self.graph[correlationId_1], self.graph[correlationId_2]
+        # Check if we are currently suppressed from making an order
+        if node_1.check_order_suppression():
+            return ()
+        # Traverse edges checking for arbitrage
+        node_1Id = node_1.correlationId
+        for node_2Id, activated in node_1.adjacencyList.items():
+            node_2 = self.graph[node_2Id]
+            # Check if the edge is activated
+            if not activated:    
+                # If the other node has been updated but we haven't activated the edge yet
+                if not node_2.lastUpdated:
+                    self.logger.info("Edge not active yet.")
+                    continue
+                else:
+                    # Activate the edge
+                    self.logger.info(f"Activating edge between nodes {node_1Id} and {node_2Id}.")
+                    self.graph.activate_edge(node_1Id, node_2Id)
+            # Check if the second node is suppressed
+            if node_2.check_order_suppression():
+                return ()
+        # Get the value of the possible opportunity
         buy_arb_opportunity = abs(node_1.bestBidPrice - node_2.bestBidPrice) - self.threshold
         ask_arb_opportunity = abs(node_1.bestAskPrice - node_2.bestAskPrice) - self.threshold
         # Buy side logic
@@ -69,20 +87,4 @@ class CrossExchangeMarketMaker:
         node = self.graph[correlationId].update_node(bidPrice, bidSize, askPrice, askSize)
         # Log the data to the log file
         self.logger.debug(f"Order book update for {node.pair} on {node.exchange}. BB: {bidPrice}, BA: {askPrice}")
-        # Check if we are currently suppressed from making an order
-        if not node.check_order_suppression():
-            pass
-        # Traverse edges checking for arbitrage
-        for nodeId, activated in node.adjacencyList.items():
-            # Check if the edge is activated
-            if not activated:    
-                # If the other node has been updated but we haven't activated the edge yet
-                if not self.graph[nodeId].lastUpdated:
-                    self.logger.info("Edge not active yet.")
-                    continue
-                else:
-                    # Activate the edge
-                    self.logger.info(f"Activating edge between nodes {correlationId} and {nodeId}.")
-                    self.graph.activate_edge(correlationId, nodeId)
-            # Check for arbitrage opportunity
-            self.check_arbitrage(correlationId, nodeId)
+        
