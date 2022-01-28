@@ -8,6 +8,7 @@ class MyEventHandler(EventHandler):
         self.crossExchMM = crossExchMM
 
     def parse_element(self):
+        """Parses the elements from the message."""
         elementNameValueMap = self.element.getNameValueMap()
         for name, value in elementNameValueMap.items():
             if name == "BID_PRICE":
@@ -26,6 +27,7 @@ class MyEventHandler(EventHandler):
                 correlationId = message.getCorrelationIdList()[0]
                 # Parse the elements from the message
                 for self.element in message.getElementList():
+                    # TODO: Add message parsing for order execution
                     # Parse the element
                     self.parse_element()
                 # Update the order book for the node

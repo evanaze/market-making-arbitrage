@@ -11,6 +11,7 @@ class CrossExchangeMarketMaker:
         self.ub = 1 + self.threshold
         self.lb = 1 - self.threshold
         self.orderHandler = OrderHandler(logger)
+        self.live_trade = not os.getenv("PAPER_TRADE")
         self.logger.info(f"Paper trade: {os.getenv('PAPER_TRADE')}")
 
     def check_arbitrage(self, node_1: Node, node_2: Node) -> tuple:
@@ -72,11 +73,12 @@ class CrossExchangeMarketMaker:
             offer = node_2.bestAskPrice
             buy = False
         # Submit an order
-        try:
-            order = self.orderHandler.submit_order(node=order_node, quantity=0, offer=offer, buy=buy)
-            return order
-        except Exception as e:
-            self.logger.error(e)
+        if self.live_trade:
+            try:
+                order = self.orderHandler.submit_order(node=order_node, quantity=0, offer=offer, buy=buy)
+                return order
+            except Exception as e:
+                self.logger.error(e)
         return None
 
     def order_book_update(self, correlationId: str, bidPrice: float, bidSize: float, askPrice: float, askSize: float):
