@@ -24,7 +24,7 @@ class CrossExchangeMarketMaker:
         """
         # Check if we are currently suppressed from making an order
         if node_1.check_order_suppression():
-            return ()
+            return None
         # Traverse edges checking for arbitrage
         node_1Id = node_1.correlationId
         for node_2Id, activated in node_1.adjacencyList.items():
@@ -41,7 +41,7 @@ class CrossExchangeMarketMaker:
                     self.graph.activate_edge(node_1Id, node_2Id)
             # Check if the second node is suppressed
             if node_2.check_order_suppression():
-                return ()
+                return None
         # Get the value of the possible opportunity
         buy_arb_opportunity = abs(node_1.bestBidPrice - node_2.bestBidPrice) - self.threshold
         ask_arb_opportunity = abs(node_1.bestAskPrice - node_2.bestAskPrice) - self.threshold
@@ -49,40 +49,35 @@ class CrossExchangeMarketMaker:
         if node_1.bestBidPrice / node_2.bestBidPrice <= self.lb:
             self.logger.info(f"Buy side arbitrage opportunity for pair {node_1.pair} between exchange {node_1.exchange} and {node_2.exchange}.")
             self.logger.debug(f"{node_1.exchange} best bid: {node_1.bestBidPrice}, {node_2.exchange} best bid: {node_2.bestBidPrice}. Possible arbitrage={buy_arb_opportunity}.")
-            # Submit an order
-            try:
-                order = self.orderHandler.submit_order(node=node_1, quantity=0, offer=node_1.bestBidPrice, buy=True)
-            except Exception as e:
-                self.logger.error(e)
+            order_node = node_1 
+            offer = node_1.bestBidPrice
+            buy = True
         elif node_1.bestBidPrice / node_2.bestBidPrice >= self.ub:
             self.logger.info(f"Buy side arbitrage opportunity for pair {node_1.pair} between exchange {node_2.exchange} and {node_1.exchange}.")
             self.logger.debug(f"{node_2.exchange} best bid: {node_2.bestBidPrice}, {node_1.exchange} best bid: {node_1.bestBidPrice}. Possible arbitrage={buy_arb_opportunity}.")
-            try:
-                # Submit an order
-                order = self.orderHandler.submit_order(node=node_2, quantity=0, offer=node_2.bestBidPrice, buy=True)
-            except Exception as e:
-                self.logger.error(e)
+            order_node = node_2 
+            offer = node_2.bestBidPrice
+            buy = True
         # Ask side logic
         elif node_1.bestAskPrice / node_2.bestAskPrice >= self.ub:
             self.logger.info(f"Sell side arbitrage opportunity for pair {node_1.pair} between exchange {node_1.exchange} and {node_2.exchange}.")
             self.logger.debug(f"{node_1.exchange} best ask: {node_1.bestAskPrice}, {node_2.exchange} best ask: {node_2.bestAskPrice}. Possible arbitrage={ask_arb_opportunity}.")
-            try:
-                # Submit an order
-                order = self.orderHandler.submit_order(node=node_1, quantity=0, offer=node_1.bestAskPrice, buy=False)
-            except Exception as e:
-                self.logger.error(e)
+            order_node = node_1 
+            offer = node_1.bestAskPrice
+            buy = False
         elif node_1.bestAskPrice / node_2.bestAskPrice <= self.lb:
             self.logger.info(f"Sell side arbitrage opportunity for pair {node_1.pair} between exchange {node_2.exchange} and {node_1.exchange}.")
             self.logger.debug(f"{node_2.exchange} best ask: {node_2.bestAskPrice}, {node_1.exchange} best ask: {node_1.bestAskPrice}. Possible arbitrage={ask_arb_opportunity}.")
-            try:
-                # Submit an order
-                order = self.orderHandler.submit_order(node=node_2, quantity=0, offer=node_2.bestAskPrice, buy=False)
-            except Exception as e:
-                self.logger.error(e)
-        if order in locals():
-            return order 
-        else:
-            return None
+            order_node = node_2
+            offer = node_2.bestAskPrice
+            buy = False
+        # Submit an order
+        try:
+            order = self.orderHandler.submit_order(node=order_node, quantity=0, offer=offer, buy=buy)
+            return order
+        except Exception as e:
+            self.logger.error(e)
+        return None
 
     def order_book_update(self, correlationId: str, bidPrice: float, bidSize: float, askPrice: float, askSize: float):
         """Update the order book of a given instrument."""
