@@ -12,7 +12,7 @@ class OrderHandler:
             pair_split = self.pair.split("-")
             self.quote, self.base = pair_split[0], pair_split[1]
 
-    def submit_order(self, node: Node, quantity: float, price: float, buy: bool) -> None:
+    def submit_order(self, node: Node, quantity: float, price: float, buy: bool) -> Request:
         """Submit the order."""
         self.pair = node.pair 
         self.exchange = node.exchange
@@ -28,5 +28,13 @@ class OrderHandler:
             })
         else:
             self.logger.info(f"Submitting sell order on {self.exchange} for {quantity} {self.quote} at {self.offer} {self.base}.")
+            request = Request(Request.Operation_CREATE_ORDER, self.exchange, self.pair)
+            request.appendParam({
+                'SIDE':'SELL',
+                'QUANTITY':quantity,
+                'LIMIT_PRICE':price,
+            })
         # Update the node for the submitted order
         node.new_order()
+        # Return the request to submit
+        return request

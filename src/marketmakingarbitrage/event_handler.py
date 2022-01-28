@@ -30,4 +30,9 @@ class MyEventHandler(EventHandler):
                     self.parse_element()
                 # Update the order book for the node
                 self.crossExchMM.order_book_update(correlationId, self.bidPrice, self.bidSize, self.askPrice, self.askSize)
+                # Check for an arbitrage opportunity
+                order = self.crossExchMM.check_arbitrage()
+                # Submit the order
+                # if order:
+                #    session.sendRequest(order)
         return True  # This line is needed.

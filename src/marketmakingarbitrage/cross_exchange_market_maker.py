@@ -7,11 +7,10 @@ class CrossExchangeMarketMaker:
     def __init__(self, logger, graph=Graph()):
         self.graph = graph
         self.logger = logger
-        self.threshold = 0.002
+        self.threshold = 0.0002
         self.ub = 1 + self.threshold
         self.lb = 1 - self.threshold
         self.orderHandler = OrderHandler(logger)
-        self.suppress_orders = False
         self.logger.info(f"Paper trade: {os.getenv('PAPER_TRADE')}")
 
     def check_arbitrage(self, node_1: Node, node_2: Node) -> tuple:
@@ -52,7 +51,7 @@ class CrossExchangeMarketMaker:
             self.logger.debug(f"{node_1.exchange} best bid: {node_1.bestBidPrice}, {node_2.exchange} best bid: {node_2.bestBidPrice}. Possible arbitrage={buy_arb_opportunity}.")
             # Submit an order
             try:
-                self.orderHandler.submit_order(node=node_1, quantity=0, offer=node_1.bestBidPrice, buy=True)
+                order = self.orderHandler.submit_order(node=node_1, quantity=0, offer=node_1.bestBidPrice, buy=True)
             except Exception as e:
                 self.logger.error(e)
         elif node_1.bestBidPrice / node_2.bestBidPrice >= self.ub:
@@ -60,7 +59,7 @@ class CrossExchangeMarketMaker:
             self.logger.debug(f"{node_2.exchange} best bid: {node_2.bestBidPrice}, {node_1.exchange} best bid: {node_1.bestBidPrice}. Possible arbitrage={buy_arb_opportunity}.")
             try:
                 # Submit an order
-                self.orderHandler.submit_order(node=node_2, quantity=0, offer=node_2.bestBidPrice, buy=True)
+                order = self.orderHandler.submit_order(node=node_2, quantity=0, offer=node_2.bestBidPrice, buy=True)
             except Exception as e:
                 self.logger.error(e)
         # Ask side logic
@@ -69,7 +68,7 @@ class CrossExchangeMarketMaker:
             self.logger.debug(f"{node_1.exchange} best ask: {node_1.bestAskPrice}, {node_2.exchange} best ask: {node_2.bestAskPrice}. Possible arbitrage={ask_arb_opportunity}.")
             try:
                 # Submit an order
-                self.orderHandler.submit_order(node=node_1, quantity=0, offer=node_1.bestAskPrice, buy=False)
+                order = self.orderHandler.submit_order(node=node_1, quantity=0, offer=node_1.bestAskPrice, buy=False)
             except Exception as e:
                 self.logger.error(e)
         elif node_1.bestAskPrice / node_2.bestAskPrice <= self.lb:
@@ -77,9 +76,13 @@ class CrossExchangeMarketMaker:
             self.logger.debug(f"{node_2.exchange} best ask: {node_2.bestAskPrice}, {node_1.exchange} best ask: {node_1.bestAskPrice}. Possible arbitrage={ask_arb_opportunity}.")
             try:
                 # Submit an order
-                self.orderHandler.submit_order(node=node_2, quantity=0, offer=node_2.bestAskPrice, buy=False)
+                order = self.orderHandler.submit_order(node=node_2, quantity=0, offer=node_2.bestAskPrice, buy=False)
             except Exception as e:
                 self.logger.error(e)
+        if order in locals():
+            return order 
+        else:
+            return None
 
     def order_book_update(self, correlationId: str, bidPrice: float, bidSize: float, askPrice: float, askSize: float):
         """Update the order book of a given instrument."""
