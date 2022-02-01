@@ -1,20 +1,23 @@
 """Creates an .env file from user inputted information"""
 
 
-def test_input(user_input, valid_input, prompt, tries=2):
+def test_input(user_input, valid_input, prompt, tries=3):
     """Tests the user input against the valid input, and allows the user to retry."""
-    while tries:
-        # If the user input is invalid and they still have more tries, prompt them again
-        if user_input.lower() not in valid_input:
-            print("Invalid input. Try again.")
-            # Prompt the user again
-            user_input = input(prompt)
-            tries -= 1
-        # Return the valid response
-        else:
-            return user_input
+    # If the user input is invalid and they still have more tries, prompt them again
+    if user_input.lower() not in valid_input and tries > 0:
+        print("Invalid input. Try again.")
+        # Prompt the user again
+        user_input = input(prompt)
+        tries -= 1
+    # If the user has run out of tries.
+    elif tries == 0:
+        print("Too many attempts. Exiting.")
+        exit(1)
+    # Return the valid response
+    else:
+        return user_input
     print("Invalid inputs. Exiting.")
-    exit(1)
+    
     
 def add_line(key, prompt: str, valid_input=None, lines=[]) -> list:
     """Adds a new line to the list of lines."""
@@ -40,10 +43,3 @@ def make_env_file():
 
 if __name__ == "__main__":
     make_env_file()
-
-def test():
-    with open("test.txt", "w") as t:
-        t.write("Test 1")
-        t.write("Test 2")
-
-test()
