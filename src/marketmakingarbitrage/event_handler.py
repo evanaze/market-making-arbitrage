@@ -21,6 +21,7 @@ class MyEventHandler(EventHandler):
                 self.askSize = float(value)
 
     def processEvent(self, event: Event, session: Session) -> bool:
+        print("Received an event:\n" + event.toStringPretty(2, 2))
         if event.getType() == Event.Type_SUBSCRIPTION_DATA:
             for message in event.getMessageList():
                 # Get the correlation ID from the message.
@@ -38,5 +39,5 @@ class MyEventHandler(EventHandler):
                 # if order:
                 #    session.sendRequest(order)
         if event.getType() != Event.Type_SUBSCRIPTION_DATA:
-            print("Received an event:\n" + event.toStringPretty(2, 2))
+            print("Received a non-subscription event:\n" + event.toStringPretty(2, 2))
         return True  # This line is needed.

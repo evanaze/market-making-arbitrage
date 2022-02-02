@@ -39,7 +39,8 @@ class MarketMakingArbitrage:
                 request = Request(Request.Operation_GET_ACCOUNT_BALANCES, exchange)
                 requests.append(request)
         # Query for account balances
-        self.session.sendRequest()
+        for request in requests:
+            self.session.sendRequest(request)
 
     def market_making_arbitrage(self, duration=None):
         "The main process."
