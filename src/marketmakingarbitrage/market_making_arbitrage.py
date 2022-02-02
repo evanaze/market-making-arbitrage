@@ -33,10 +33,10 @@ class MarketMakingArbitrage:
         requests = []
         for exchange in self.graph.exchanges:
             if exchange == "coinbase":
-                request = Request(Request.Operation_GET_ACCOUNTS)
+                request = Request(Request.Operation_GET_ACCOUNTS, exchange)
                 requests.append(request)
             elif exchange == "kraken":
-                request = Request(Request.Operation_GET_ACCOUNT_BALANCES)
+                request = Request(Request.Operation_GET_ACCOUNT_BALANCES, exchange)
                 requests.append(request)
         # Query for account balances
         self.session.sendRequest()
