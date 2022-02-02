@@ -37,4 +37,6 @@ class MyEventHandler(EventHandler):
                 # Submit the order
                 # if order:
                 #    session.sendRequest(order)
+        if event.getType() != Event.Type_SUBSCRIPTION_DATA:
+            print("Received an event:\n" + event.toStringPretty(2, 2))
         return True  # This line is needed.

@@ -4,13 +4,13 @@ from order_handler import OrderHandler
 
 
 class CrossExchangeMarketMaker:
-    def __init__(self, logger, account_balances: dict, graph=Graph()):
+    def __init__(self, logger, graph=Graph()):
         self.graph = graph
         self.logger = logger
         self.threshold = 0.0002
         self.ub = 1 + self.threshold
         self.lb = 1 - self.threshold
-        self.orderHandler = OrderHandler(logger, account_balances)
+        self.orderHandler = OrderHandler(logger)
         self.live_trade = not os.getenv("PAPER_TRADE")
 
     def check_arbitrage(self, node_1: Node, node_2: Node) -> tuple:

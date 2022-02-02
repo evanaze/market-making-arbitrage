@@ -3,7 +3,7 @@ from ccapi import Request
 from graph import Node
 
 class OrderHandler:
-    def __init__(self, logger, account_balances):
+    def __init__(self, logger, account_balances=None):
         self.logger = logger
         self.account_balances = account_balances
 
