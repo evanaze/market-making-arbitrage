@@ -18,7 +18,6 @@ def test_input(user_input, valid_input, prompt, tries=3):
         return user_input
     print("Invalid inputs. Exiting.")
     
-    
 def add_line(key, prompt: str, valid_input=None, lines=[]) -> list:
     """Adds a new line to the list of lines."""
     user_input = input(prompt)

@@ -4,15 +4,14 @@ from order_handler import OrderHandler
 
 
 class CrossExchangeMarketMaker:
-    def __init__(self, logger, graph=Graph()):
+    def __init__(self, logger, account_balances: dict, graph=Graph()):
         self.graph = graph
         self.logger = logger
         self.threshold = 0.0002
         self.ub = 1 + self.threshold
         self.lb = 1 - self.threshold
-        self.orderHandler = OrderHandler(logger)
+        self.orderHandler = OrderHandler(logger, account_balances)
         self.live_trade = not os.getenv("PAPER_TRADE")
-        self.logger.info(f"Paper trade: {os.getenv('PAPER_TRADE')}")
 
     def check_arbitrage(self, node_1: Node, node_2: Node) -> tuple:
         """Check for arbitrage opportunity between two exchanges.
@@ -75,7 +74,7 @@ class CrossExchangeMarketMaker:
         # Submit an order
         if self.live_trade:
             try:
-                order = self.orderHandler.submit_order(node=order_node, quantity=0, offer=offer, buy=buy)
+                order = self.orderHandler.submit_order(node=order_node, account_balances=self.account_balances, offer=offer, buy=buy)
                 return order
             except Exception as e:
                 self.logger.error(e)

@@ -1,5 +1,5 @@
 import time
-from ccapi import SessionOptions, SessionConfigs, Session, Subscription
+from ccapi import SessionOptions, SessionConfigs, Session, Subscription, Request
 
 from graph import Graph
 from event_handler import MyEventHandler
@@ -28,24 +28,41 @@ class MarketMakingArbitrage:
         self.graph.add_node(exchange="kraken", pair="BTC-USD", correlationId="2")
         # Add an edge between the instruments
         self.graph.add_edge("1", "2")
+    
+    def get_account_balances(self):
+        """Gets account balances for each of the exchanges."""
+        requests = []
+        for exchange in self.graph.exchanges:
+            if exchange == "coinbase":
+                request = Request(Request.Operation_GET_ACCOUNTS)
+                requests.append(request)
+            elif exchange == "kraken":
+                request = Request(Request.Operation_GET_ACCOUNT_BALANCES)
+                requests.append(request)
+        # Query for account balances
+        self.account_balances = self.session.sendRequest()
+        print(self.account_balances)
 
     def market_making_arbitrage(self, duration=None):
         "The main process."
-        # Make a list of subscriptions
+        # Build the graph and make a list of subscriptions
         self.build_graph()
+        # Get the initial account balances
         # Make the market making object
         CrossExchMM = CrossExchangeMarketMaker(logger=self.logger, graph=self.graph)
         # Make the event handler
         eventHandler = MyEventHandler(logger=self.logger, crossExchMM=CrossExchMM)
         # Make the session
-        session = Session(self.option, self.config, eventHandler)
+        self.session = Session(self.option, self.config, eventHandler)
+        # Get initial account balances
+        self.get_account_balances()
         # Subscribe to instruments
         for subscription in self.subscriptions:
-            session.subscribe(subscription)
+            self.session.subscribe(subscription)
         # Sleep to allow the program to run
         if duration:
             time.sleep(duration)
-        session.stop()
+        self.session.stop()
         self.logger.info('Bye')
 
 if __name__ == '__main__':

@@ -12,7 +12,11 @@ class Node:
         self.adjacencyList = defaultdict(int)
         self.suppress_orders_flag = False
         self.suppress_duration = suppress_duration
-
+        # Get the base and quote of the node
+        if self.exchange in ["coinbase", "kraken"]:
+            pair_split = self.pair.split("-")
+            self.quote, self.base = pair_split[0], pair_split[1]
+        
     def update_node(self, bestBidPrice: float, bestBidSize: float, bestAskPrice: float, bestAskSize: float):
         """Update the information on a node."""
         # Update the order book details
@@ -55,6 +59,7 @@ class Graph:
     """A graph of instruments on exchanges and possible trade pairs."""
     def __init__(self):
         self.node_list = defaultdict(Node)
+        self.exchanges = set()
 
     def __len__(self):
         return len(self.node_list)
@@ -64,6 +69,7 @@ class Graph:
 
     def add_node(self, correlationId, exchange, pair):
         self.node_list[correlationId] = Node(exchange=exchange, pair=pair, correlationId=correlationId)
+        self.exchanges.add(exchange)
 
     def add_edge(self, correlationId_1, correlationId_2):
         """Adds a deactivated edge between two nodes."""
