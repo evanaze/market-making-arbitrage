@@ -1,16 +1,17 @@
+"""The object that performs the logic of the """
 import os
 from graph import Graph, Node
+from marketmakingarbitrage.market_making_arbitrage import MarketMakingArbitrage
 from order_handler import OrderHandler
 
 
-class CrossExchangeMarketMaker:
-    def __init__(self, logger, graph=Graph()):
-        self.graph = graph
-        self.logger = logger
-        self.threshold = 0.0002
+class CrossExchangeMarketMaker(MarketMakingArbitrage):
+    def __init__(self):
+        super.__init__()
+        self.threshold = self.config["Trading Parameters"]["Threshold"]
         self.ub = 1 + self.threshold
         self.lb = 1 - self.threshold
-        self.orderHandler = OrderHandler(logger)
+        self.orderHandler = OrderHandler()
         self.live_trade = not os.getenv("PAPER_TRADE")
 
     def check_arbitrage(self, node_1: Node, node_2: Node) -> tuple:

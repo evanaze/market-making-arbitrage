@@ -36,10 +36,6 @@ class Node:
         """Activate the edge between two nodes on the adjacency list."""
         self.adjacencyList[correlationId] = 1
 
-    def new_order(self):
-        """Updates the node status for a new order"""
-        self.suppress_orders()
-
     def suppress_orders(self):
         """Suppresses future orders for the specified duration."""
         self.reactivate_orders_timestamp = dt.datetime.now(tz=dt.timezone.utc) + dt.timedelta(seconds=self.suppress_duration)
@@ -58,30 +54,30 @@ class Node:
 class Graph:
     """A graph of instruments on exchanges and possible trade pairs."""
     def __init__(self):
-        self.node_list = defaultdict(Node)
+        self.nodeList = defaultdict(Node)
         self.exchanges = set()
 
     def __len__(self):
-        return len(self.node_list)
+        return len(self.nodeList)
 
     def __getitem__(self, correlationId):
-        return self.node_list[correlationId]
+        return self.nodeList[correlationId]
 
     def add_node(self, correlationId, exchange, pair):
-        self.node_list[correlationId] = Node(exchange=exchange, pair=pair, correlationId=correlationId)
+        self.nodeList[correlationId] = Node(exchange=exchange, pair=pair, correlationId=correlationId)
         self.exchanges.add(exchange)
 
     def add_edge(self, correlationId_1, correlationId_2):
         """Adds a deactivated edge between two nodes."""
-        self.node_list[correlationId_1].add_edge(correlationId_2)
-        self.node_list[correlationId_2].add_edge(correlationId_1)
+        self.nodeList[correlationId_1].add_edge(correlationId_2)
+        self.nodeList[correlationId_2].add_edge(correlationId_1)
 
     def activate_edge(self, correlationId_1, correlationId_2):
         """Activates an edge between two nodes."""
-        self.node_list[correlationId_1].activate_edge(correlationId_2)
-        self.node_list[correlationId_2].activate_edge(correlationId_1)
+        self.nodeList[correlationId_1].activate_edge(correlationId_2)
+        self.nodeList[correlationId_2].activate_edge(correlationId_1)
 
     def update_node(self, correlationId, bestBidPrice=None, bestBidSize=None, bestAskPrice=None, bestAskSize=None):
         """Updates the node with the new information."""
-        node = self.node_list[correlationId]
+        node = self.nodeList[correlationId]
         return node.update_node(bestBidPrice, bestBidSize, bestAskPrice, bestAskSize)

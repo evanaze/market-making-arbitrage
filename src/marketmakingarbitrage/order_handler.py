@@ -26,6 +26,6 @@ class OrderHandler:
                 'LIMIT_PRICE':price,
             })
         # Update the node for the submitted order
-        node.new_order()
+        node.suppress_orders()
         # Return the request to submit
         return request

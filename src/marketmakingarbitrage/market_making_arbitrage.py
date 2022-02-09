@@ -1,4 +1,6 @@
+"""The main process script for market making arbitrage."""
 import time
+import configparser
 from ccapi import SessionOptions, SessionConfigs, Session, Subscription, Request
 
 from graph import Graph
@@ -11,6 +13,7 @@ class MarketMakingArbitrage:
     def __init__(self, duration=None):
         self.logger = logger
         self.graph = Graph()
+        self.config = configparser().ConfigParser()
         self.option = SessionOptions()
         self.config = SessionConfigs()
 
@@ -47,6 +50,7 @@ class MarketMakingArbitrage:
         # Build the graph and make a list of subscriptions
         self.build_graph()
         # Get the initial account balances
+        self.get_account_balances()
         # Make the market making object
         CrossExchMM = CrossExchangeMarketMaker(logger=self.logger, graph=self.graph)
         # Make the event handler
