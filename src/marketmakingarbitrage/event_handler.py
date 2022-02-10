@@ -3,24 +3,39 @@ import configparser
 from decimal import Decimal
 from ccapi import EventHandler, Session, Event, Message, RequestList, Request, SessionOptions, SessionConfigs
 from log import logger
+from graph import Graph
 
-class MyEventHandler(EventHandler):
+
+class MyEventHandler(EventHandler, Graph):
     def __init__(self):
         super().__init__()
         self.logger = logger
         self.openOrders = {}
         self.balances = {}
         self.config = configparser().ConfigParser()
-        self.sessionOption = SessionOptions()
-        self.sessionConfig = SessionConfigs()
+        sessionOption = SessionOptions()
+        sessionConfig = SessionConfigs()
+        # Make the session
+        self.session = Session(sessionOption, sessionConfig, self)
 
+    def register_observer(self, observer):
+        """Registers the main object as an observer"""
+        self.observer = observer
+    
     def send_request(self, requestList):
         for request in requestList:
             self.logger.info(f"sending request: {request.toString()}")
         self.session.sendRequest(requestList)
 
+    def subscribe_ws(self, subscriptions):
+        # Subscribe to instruments
+        for subscription in subscriptions:
+            self.session.subscribe(subscription)
+
     def process_ob_update(self):
         """Parses the elements from the message."""
+        # Get the correlation ID from the message.
+        correlationId = self.message.getCorrelationIdList()[0]
         # Iterate through the list of elements
         for element in self.message.getElementList():
             elementNameValueMap = element.getNameValueMap()
@@ -34,6 +49,7 @@ class MyEventHandler(EventHandler):
                     askPrice = float(value)
                 else:
                     askSize = float(value)
+        self.observer.
         return bidPrice, bidSize, askPrice, askSize
     
     def process_open_orders(self):
@@ -82,15 +98,10 @@ class MyEventHandler(EventHandler):
         self.ready = True
 
     def processEvent(self, event: Event, session: Session) -> bool:
-        # TODO: Add message parsing for order execution
         if event.getType() == Event.Type_SUBSCRIPTION_DATA:
             for self.message in event.getMessageList():
-                # Get the correlation ID from the message.
-                correlationId = self.message.getCorrelationIdList()[0]
                 # Parse the elements from the message
                 self.process_ob_update()
-                # Update the order book for the node
-                self.crossExchMM.order_book_update(correlationId, self.bidPrice, self.bidSize, self.askPrice, self.askSize)
                 # Check for an arbitrage opportunity
                 opportunity = self.crossExchMM.check_arbitrage()
                 # Submit the order

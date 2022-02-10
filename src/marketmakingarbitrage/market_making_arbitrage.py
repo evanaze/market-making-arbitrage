@@ -1,32 +1,29 @@
 """The main process script for market making arbitrage."""
 import time
 import configparser
-from ccapi import SessionOptions, SessionConfigs, Session, Subscription, Request
-
-from graph import Graph
 from event_handler import MyEventHandler
+from ccapi import Subscription, Request
 from log import logger
 
 
 class MarketMakingArbitrage(MyEventHandler):
     def __init__(self, duration=None):
         self.logger = logger
-        self.graph = Graph()
         self.config = configparser().ConfigParser()
-        self.sessionOption = SessionOptions()
-        self.sessionConfig = SessionConfigs()
 
     def build_graph(self):
         "Creates the graph of instruments."
         # Create subscriptions
-        self.subscriptions = []
+        subscriptions = []
         # Coinbase subscription
         #self.subscriptions.append(Subscription('coinbase', 'BTC-USD', 'MARKET_DEPTH', "MARKET_DEPTH_MAX=1", "1"))
-        self.subscriptions.append(Subscription('coinbase', 'BTC-USD', "MARKET_DEPTH,ORDER_UPDATE,PRIVATE_TRADE", "MARKET_DEPTH_MAX=1", "1"))
+        subscriptions.append(Subscription('coinbase', 'BTC-USD', "MARKET_DEPTH,ORDER_UPDATE,PRIVATE_TRADE", "MARKET_DEPTH_MAX=1", "1"))
         self.graph.add_node(exchange="coinbase", pair="BTC-USD", correlationId="1")
         # Kraken subscription
-        self.subscriptions.append(Subscription('kraken', 'XBT/USD', 'MARKET_DEPTH,ORDER_UPDATE,PRIVATE_TRADE', "MARKET_DEPTH_MAX=10", "2"))
+        subscriptions.append(Subscription('kraken', 'XBT/USD', 'MARKET_DEPTH,ORDER_UPDATE,PRIVATE_TRADE', "MARKET_DEPTH_MAX=10", "2"))
         self.graph.add_node(exchange="kraken", pair="BTC-USD", correlationId="2")
+        # Subscribe to instruments
+        self.subscribe_ws(subscriptions)
         # Add an edge between the instruments
         self.graph.add_edge("1", "2")
     
@@ -50,17 +47,8 @@ class MarketMakingArbitrage(MyEventHandler):
         self.build_graph()
         # Get the initial account balances
         self.get_account_balances()
-        # Make the market making object
-        CrossExchMM = CrossExchangeMarketMaker(logger=self.logger, graph=self.graph)
-        # Make the event handler
-        eventHandler = MyEventHandler(logger=self.logger, crossExchMM=CrossExchMM)
-        # Make the session
-        self.session = Session(self.option, self.config, eventHandler)
         # Get initial account balances
         self.get_account_balances()
-        # Subscribe to instruments
-        for subscription in self.subscriptions:
-            self.session.subscribe(subscription)
         # Sleep to allow the program to run
         if duration:
             time.sleep(duration)

@@ -17,7 +17,7 @@ class Node:
             pair_split = self.pair.split("-")
             self.quote, self.base = pair_split[0], pair_split[1]
         
-    def update_node(self, bestBidPrice: float, bestBidSize: float, bestAskPrice: float, bestAskSize: float):
+    def update(self, bestBidPrice: float, bestBidSize: float, bestAskPrice: float, bestAskSize: float):
         """Update the information on a node."""
         # Update the order book details
         self.bestBidPrice = bestBidPrice
@@ -28,11 +28,11 @@ class Node:
         self.lastUpdated = dt.datetime.now(tz=dt.timezone.utc)
         return self
 
-    def add_edge(self, correlationId: str):
+    def add_edge_to_node(self, correlationId: str):
         """Add a new deactivated edge to the adjacency list."""
         self.adjacencyList[correlationId]
 
-    def activate_edge(self, correlationId: str):
+    def activate_edge_node(self, correlationId: str):
         """Activate the edge between two nodes on the adjacency list."""
         self.adjacencyList[correlationId] = 1
 
@@ -69,15 +69,14 @@ class Graph:
 
     def add_edge(self, correlationId_1, correlationId_2):
         """Adds a deactivated edge between two nodes."""
-        self.nodeList[correlationId_1].add_edge(correlationId_2)
-        self.nodeList[correlationId_2].add_edge(correlationId_1)
+        self.nodeList[correlationId_1].add_edge_to_node(correlationId_2)
+        self.nodeList[correlationId_2].add_edge_to_node(correlationId_1)
 
     def activate_edge(self, correlationId_1, correlationId_2):
         """Activates an edge between two nodes."""
-        self.nodeList[correlationId_1].activate_edge(correlationId_2)
-        self.nodeList[correlationId_2].activate_edge(correlationId_1)
+        self.nodeList[correlationId_1].activate_edge_node(correlationId_2)
+        self.nodeList[correlationId_2].activate_edge_node(correlationId_1)
 
     def update_node(self, correlationId, bestBidPrice=None, bestBidSize=None, bestAskPrice=None, bestAskSize=None):
         """Updates the node with the new information."""
-        node = self.nodeList[correlationId]
-        return node.update_node(bestBidPrice, bestBidSize, bestAskPrice, bestAskSize)
+        return self.nodeList[correlationId].update(bestBidPrice, bestBidSize, bestAskPrice, bestAskSize)
