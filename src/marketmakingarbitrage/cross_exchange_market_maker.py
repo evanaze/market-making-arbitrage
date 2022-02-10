@@ -12,7 +12,7 @@ class CrossExchangeMarketMaker(MarketMakingArbitrage):
         self.ub = 1 + self.threshold
         self.lb = 1 - self.threshold
         self.orderHandler = OrderHandler()
-        self.live_trade = not os.getenv("PAPER_TRADE")
+        self.liveTrade = self.config["Default"].getboolean('PaperTrade', fallback=True)
 
     def check_arbitrage(self, node_1: Node, node_2: Node) -> tuple:
         """Check for arbitrage opportunity between two exchanges.
@@ -73,7 +73,7 @@ class CrossExchangeMarketMaker(MarketMakingArbitrage):
             offer = node_2.bestAskPrice
             buy = False
         # Submit an order
-        if self.live_trade:
+        if self.liveTrade:
             try:
                 order = self.orderHandler.submit_order(node=order_node, account_balances=self.account_balances, offer=offer, buy=buy)
                 return order

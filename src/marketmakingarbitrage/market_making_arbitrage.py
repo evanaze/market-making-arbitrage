@@ -5,17 +5,16 @@ from ccapi import SessionOptions, SessionConfigs, Session, Subscription, Request
 
 from graph import Graph
 from event_handler import MyEventHandler
-from cross_exchange_market_maker import CrossExchangeMarketMaker
 from log import logger
 
 
-class MarketMakingArbitrage:
+class MarketMakingArbitrage(MyEventHandler):
     def __init__(self, duration=None):
         self.logger = logger
         self.graph = Graph()
         self.config = configparser().ConfigParser()
-        self.option = SessionOptions()
-        self.config = SessionConfigs()
+        self.sessionOption = SessionOptions()
+        self.sessionConfig = SessionConfigs()
 
     def build_graph(self):
         "Creates the graph of instruments."
