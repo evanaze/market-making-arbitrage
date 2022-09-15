@@ -80,11 +80,3 @@ class CrossExchangeMarketMaker(MarketMakingArbitrage):
             except Exception as e:
                 self.logger.error(e)
         return None
-
-    def order_book_update(self, correlationId: str, bidPrice: float, bidSize: float, askPrice: float, askSize: float):
-        """Update the order book of a given instrument."""
-        # Update node
-        node = self.graph[correlationId].update_node(bidPrice, bidSize, askPrice, askSize)
-        # Log the data to the log file
-        self.logger.debug(f"Order book update for {node.pair} on {node.exchange}. BB: {bidPrice}, BA: {askPrice}")
-        

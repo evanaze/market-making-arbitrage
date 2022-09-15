@@ -49,8 +49,10 @@ class MyEventHandler(EventHandler, Graph):
                     askPrice = float(value)
                 else:
                     askSize = float(value)
-        self.observer.
-        return bidPrice, bidSize, askPrice, askSize
+        # Update the node
+        node = self.update_node(correlationId, bidPrice, bidSize, askPrice, askSize)
+        # Log the data to the log file
+        self.logger.debug(f"Order book update for {node.pair} on {node.exchange}. BB: {bidPrice}, BA: {askPrice}")
     
     def process_open_orders(self):
         # TODO fix this
